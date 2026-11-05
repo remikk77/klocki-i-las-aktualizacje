@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+<title>Klocki i Las – 99 nocy</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud" class="hidden">
+  <div id="topleft">
+    <div id="money"><span class="coin"></span><b id="moneyV">0</b> zł</div>
+    <div id="clock"></div>
+    <div id="nightgoal"></div>
+  </div>
+  <div id="players"></div>
+  <div id="crosshair"></div>
+  <div id="targetName"></div>
+  <div id="progressWrap"><div id="progress"></div></div>
+  <div id="warn"></div>
+  <div id="air"></div>
+  <div id="chatLog"></div>
+  <input id="chatInput" class="hidden" maxlength="120" autocomplete="off" placeholder="Napisz wiadomość i naciśnij Enter…">
+  <div id="hotbar"></div>
+  <div id="keys">WASD – ruch · Spacja – skok/góra · Shift – bieg/nurkuj · LPM – kop · PPM – postaw/użyj · I – plecak · C – wytwarzanie · Enter – czat · F1 – pomoc</div>
+</div>
+<div id="uw"></div>
+<div id="flash"></div>
+<div id="toast"></div>
+<div id="screen"></div>
+<script src="bundle.js"></script>
+</body>
+</html>

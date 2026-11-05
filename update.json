@@ -1,0 +1,39 @@
+{
+  "product": "klocki-i-las",
+  "version": "3.0.1",
+  "date": "2026-11-05",
+  "electron": "45",
+  "notes": "- Bezpieczeństwo: aktualizacje są podpisane cyfrowo (Ed25519) – gra przyjmuje tylko aktualizacje podpisane kluczem autora.\n- Kod źródłowy w prywatnym repozytorium, pliki aktualizacji w osobnym publicznym.\n- Instalator Windows (EXE): instaluje i aktualizuje grę, tworzy skróty.",
+  "files": [
+    {
+      "path": "main.js",
+      "sha256": "9884cfa0981618e130e1f5995b8a155b5208317965555ad723ee1f4761dd6c94",
+      "size": 20524
+    },
+    {
+      "path": "preload.js",
+      "sha256": "c3db11273a59e69794812f1aa50df7b784e6c9cd883f962f4acfbb758b5e9e31",
+      "size": 1494
+    },
+    {
+      "path": "update-verify.js",
+      "sha256": "e8bbcb226f8d190a1f4c51740e42867ee12399fe691a1415b5047c1f3adde25e",
+      "size": 1866
+    },
+    {
+      "path": "renderer/index.html",
+      "sha256": "f76f27c981caaeb00899b226f57d3f1d8339cac41dac60a2592566507dbec6aa",
+      "size": 1244
+    },
+    {
+      "path": "renderer/style.css",
+      "sha256": "8e2dd628745353587acda141883cdba28ccc6583f9ea635a1035cad1b70950dc",
+      "size": 13094
+    },
+    {
+      "path": "renderer/bundle.js",
+      "sha256": "c8631ee11fc47c3ca84094ca33a57b79462d573ef967b6d02ad53582b5f56a19",
+      "size": 880079
+    }
+  ]
+}

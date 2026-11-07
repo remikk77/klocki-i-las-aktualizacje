@@ -4,11 +4,14 @@ To repozytorium zawiera **tylko gotowe pliki gry** i podpisany plik `update.json
 
 ## Instalacja
 Pobierz **KlockiLas-Setup.exe** z zakładki *Releases* (najnowsze wydanie) i uruchom. Instalator:
-- nie wymaga praw administratora (instaluje w profilu użytkownika), tworzy skróty na pulpicie i w menu Start,
+- pozwala **wybrać folder instalacji** (domyślny jest już podpowiedziany),
+- nie wymaga praw administratora (instaluje w profilu użytkownika), tworzy skrót na pulpicie i w menu Start,
 - uruchomiony ponownie na komputerze z grą – aktualizuje ją (zapisy graczy zostają),
 - Windows może pokazać ostrzeżenie SmartScreen („nieznany wydawca”) – instalator nie ma płatnego certyfikatu firmy. Kliknij „Więcej informacji” → „Uruchom mimo to”.
 
-Później wystarczy przycisk **Aktualizuj** w menu głównym gry.
+Link do pobrania (stały, zawsze najnowsza wersja): https://github.com/remikk77/klocki-i-las-aktualizacje/releases/latest/download/KlockiLas-Setup.exe
+
+Później wystarczy przycisk **Aktualizuj** w menu głównym gry. Nowe zadania z matematyki gra pobiera sama.
 
 ## Bezpieczeństwo
 Każda aktualizacja jest podpisana cyfrowo (Ed25519) kluczem, którego nie ma w tym repozytorium. Gra sprawdza podpis `update.json.sig`

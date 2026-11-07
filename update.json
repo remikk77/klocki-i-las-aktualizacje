@@ -1,9 +1,9 @@
 {
   "product": "klocki-i-las",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "date": "2026-11-07",
   "electron": "45",
-  "notes": "- Naprawiono liczenie nocy: jedna przetrwana noc liczy się teraz dokładnie raz (wcześniej o świcie mogła naliczyć się wiele razy).\n- Hasła graczy: przy tworzeniu gracza (albo później w menu gracza) można ustawić hasło; gracz z hasłem (🔒) otwiera się dopiero po jego wpisaniu. W pliku zapisu jest tylko skrót hasła. Po 5 błędach trzeba chwilę poczekać.\n- Nie da się już „nadpisać” istniejącego gracza, tworząc nowego o tym samym imieniu.\n- Gra sieciowa: gospodarz nie wpuści gracza o imieniu takim samym jak ktoś, kto już jest w grze (nikt nie podszyje się pod kolegę).",
+  "notes": "- Gra bardziej jak Minecraft – etap 1 (przetrwanie i wrażenia):\n  - Serca (10) i głód (10 udek) nad paskiem przedmiotów; głód rośnie od biegania, najedzony gracz odzyskuje serca, głodny nie.\n  - Obrażenia od zombie, creepera, upadku z wysokości (powyżej 3 bloków), tonięcia (po 20 s bez powietrza) i głodu; po śmierci odrodzenie przy łóżku (klik E na łóżku ustawia punkt odrodzenia).\n  - Zwierzęta: świnie, krowy i owce chodzą po łąkach, po uderzeniu uciekają, dają mięso.\n  - Jedzenie: surowe i pieczone mięso, chleb, jabłko – PPM z jedzeniem w ręku.\n  - Narzędzia w ręku: kamienny miecz i siekiera (z wytrzymałością); do wytworzenia przy stole.\n  - Ręka z trzymanym przedmiotem w pierwszej osobie, machnięcie przy kopaniu, odłamki bloków, odgłosy kroków zależne od podłoża, czerwony błysk przy trafieniu.",
   "files": [
     {
       "path": "main.js",
@@ -22,18 +22,18 @@
     },
     {
       "path": "renderer/index.html",
-      "sha256": "975c9831c2dfd9f2dd0772e6d65ac1f082dad7b457139a07551bc9f94dcdb852",
-      "size": 1398
+      "sha256": "318927e5f3e96349c15ffe31c57113e21c4a9c88395741b37ae4fcdd6c811982",
+      "size": 1490
     },
     {
       "path": "renderer/style.css",
-      "sha256": "9ba6c8a16c7517884c958a1464751836adb3fe81790b9e1218db887a3bbbfd3c",
-      "size": 14802
+      "sha256": "11d87b3f5015ac7df9542507454e5400341762d745a5dd850588600dbfd5f42d",
+      "size": 15657
     },
     {
       "path": "renderer/bundle.js",
-      "sha256": "05bda9dcb4fadf848c96d3dc31b306b2e5a8e800bef3e0bd72e7a8e50afeb7b1",
-      "size": 892422
+      "sha256": "0d0fc28ac9de3420a1bbeed7257e253f559d7aca8c0041b46aa755c214819117",
+      "size": 911844
     }
   ]
 }

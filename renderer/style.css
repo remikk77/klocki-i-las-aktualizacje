@@ -76,7 +76,7 @@ table.help td:first-child { color: #ffe27a; font-weight: 700; white-space: nowra
 .bar { height: 14px; background: #0c121c; border-radius: 7px; overflow: hidden; margin: 6px 0; }
 .bar > div { height: 100%; background: #ffe27a; }
 
-#air { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); display: none; gap: 3px; }
+#air { position: absolute; left: 50%; bottom: 124px; transform: translateX(-50%); display: none; gap: 3px; }
 #air span { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #7ad0ff; background: rgba(40,100,160,.35); }
 #air span.on { background: radial-gradient(circle at 35% 30%, #fff, #7ad0ff); }
 #uw { position: fixed; inset: 0; background: #1a6fd1; pointer-events: none; display: none; z-index: 5; mix-blend-mode: multiply; }
@@ -137,3 +137,13 @@ table.help td:first-child { color: #ffe27a; font-weight: 700; white-space: nowra
 #sleep small { font-size: 16px; font-weight: 400; opacity: .7; }
 #sleep.on { opacity: 1; }
 #gcode { font-size: 16px !important; color: #9fd0ff; font-weight: 700; letter-spacing: 1px; }
+
+/* serca i głód nad paskiem przedmiotów */
+#vitals { position: absolute; left: 50%; bottom: 84px; transform: translateX(-50%); width: 570px; display: flex; justify-content: space-between; pointer-events: none; }
+#hearts, #food { display: flex; gap: 1px; }
+#vitals img { width: 22px; height: 22px; image-rendering: pixelated; }
+#hearts.low img { animation: hshake .35s infinite; }
+@keyframes hshake { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+#hurt { position: fixed; inset: 0; z-index: 5; pointer-events: none; opacity: 0; transition: opacity .45s; background: radial-gradient(ellipse at center, rgba(180, 0, 0, 0) 35%, rgba(200, 10, 10, .55) 100%); }
+.slot .dur { position: absolute; left: 6px; right: 6px; bottom: 3px; height: 4px; background: rgba(0, 0, 0, .7); }
+.slot .dur i { display: block; height: 100%; }

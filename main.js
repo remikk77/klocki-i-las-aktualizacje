@@ -159,6 +159,17 @@ ipcMain.handle('sys:info', () => {
   return { ips, test: process.env.GRA_TEST || null, host: os.hostname() };
 });
 ipcMain.on('sys:copy', (e, s) => { require('electron').clipboard.writeText(String(s).slice(0, 500)); });
+// hasła graczy: w profilu zapisujemy tylko sól i skrót (scrypt) – samego hasła nie da się odczytać
+ipcMain.handle('pw:hash', (e, pw) => {
+  const salt = crypto.randomBytes(16), hash = crypto.scryptSync(String(pw).slice(0, 100), salt, 32, { N: 16384, r: 8, p: 1 });
+  return { salt: salt.toString('base64'), hash: hash.toString('base64') };
+});
+ipcMain.handle('pw:verify', (e, pw, rec) => {
+  try {
+    const hash = crypto.scryptSync(String(pw).slice(0, 100), Buffer.from(rec.salt, 'base64'), 32, { N: 16384, r: 8, p: 1 });
+    return crypto.timingSafeEqual(hash, Buffer.from(rec.hash, 'base64'));
+  } catch (err) { return false; }
+});
 ipcMain.on('sys:quit', () => { closing = true; app.quit(); });
 
 // ---------- sieć ----------

@@ -1,19 +1,19 @@
 {
   "product": "klocki-i-las",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "date": "2026-11-07",
   "electron": "45",
-  "notes": "- Gra przez Internet: gospodarz („Stwórz grę sieciową”) widzi w rogu ekranu **kod gry** (np. ABC-DEF), koledzy wybierają „Dołącz do gry sieciowej” i wpisują kod. Działa z każdego domu, bez ustawień routera. Gra w jednej sieci Wi-Fi działa jak dotąd (lista gier).",
+  "notes": "- Naprawiono liczenie nocy: jedna przetrwana noc liczy się teraz dokładnie raz (wcześniej o świcie mogła naliczyć się wiele razy).\n- Hasła graczy: przy tworzeniu gracza (albo później w menu gracza) można ustawić hasło; gracz z hasłem (🔒) otwiera się dopiero po jego wpisaniu. W pliku zapisu jest tylko skrót hasła. Po 5 błędach trzeba chwilę poczekać.\n- Nie da się już „nadpisać” istniejącego gracza, tworząc nowego o tym samym imieniu.\n- Gra sieciowa: gospodarz nie wpuści gracza o imieniu takim samym jak ktoś, kto już jest w grze (nikt nie podszyje się pod kolegę).",
   "files": [
     {
       "path": "main.js",
-      "sha256": "5abf6ef7943e2b1067116247980f3f94d951d5c58ca522b7fd3605fac2de8fcf",
-      "size": 31417
+      "sha256": "0951c11548c418196e86e6c089a2a013e54b2999725e532f4a7efbf1afb033c0",
+      "size": 32061
     },
     {
       "path": "preload.js",
-      "sha256": "5466e40651917b78c64478e051b707d0afc5b1b2d793fed7429a8ad73d87040d",
-      "size": 1688
+      "sha256": "eb3236409a4d22b23bc45ee6513af67271efef75ab75b3b7fd247f5a0fed5a96",
+      "size": 1808
     },
     {
       "path": "update-verify.js",
@@ -32,8 +32,8 @@
     },
     {
       "path": "renderer/bundle.js",
-      "sha256": "834dc13500f91047a020a365173492f8a99cb309d3bcbcba0135d89275546833",
-      "size": 887370
+      "sha256": "05bda9dcb4fadf848c96d3dc31b306b2e5a8e800bef3e0bd72e7a8e50afeb7b1",
+      "size": 892422
     }
   ]
 }

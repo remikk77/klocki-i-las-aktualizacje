@@ -184,7 +184,36 @@ function broadcastAddrs() {
   }
   return [...out];
 }
+// ---------- gra przez Internet (serwer pośredniczący) ----------
+// Gospodarz łączy się z serwerem pośredniczącym i dostaje kod gry (np. ABC-DEF); koledzy wpisują kod. Nikt nie musi ustawiać routera.
+// Serwer (server/relay.js) działa na Mikrusie; adres można zmienić zmienną GRA_RELAY (host:port) – np. do testów.
+const RELAY = (process.env.GRA_RELAY || 'bob338.mikrus.xyz:20338').split(':'), RELAY_HOST = RELAY[0], RELAY_PORT = +RELAY[1] || 20338;
+let relay = null;
+function startRelay() { // zwraca { ok, code } albo { ok:false, error }; błąd nie przeszkadza w grze w sieci lokalnej
+  return new Promise((resolve) => {
+    let done = false;
+    const fin = (r) => { if (!done) { done = true; resolve(r); } };
+    const s = net.connect({ host: RELAY_HOST, port: RELAY_PORT, timeout: 6000 });
+    relay = s; s.setNoDelay(true);
+    s.on('connect', () => { s.setTimeout(0); s.setKeepAlive(true, 20000); s.write(JSON.stringify({ op: 'host', g: GAME_ID }) + '\n'); });
+    s.on('data', lineReader((l) => {
+      let m; try { m = JSON.parse(l); } catch (err) { return; }
+      if (m.t === 'hosted') fin({ ok: true, code: m.code });
+      else if (m.t === 'err') fin({ ok: false, error: m.msg });
+      else if (m.t === 'conn') {
+        const id = m.conn;
+        clients.set(id, { write: (line) => { try { s.write(JSON.stringify({ t: 'to', to: id, line: line.replace(/\n$/, '') }) + '\n'); } catch (err) { } }, destroy: () => { } });
+        emit('net:conn', { conn: id });
+      } else if (m.t === 'msg') { try { emit('net:msg', { from: m.from, msg: JSON.parse(m.m) }); } catch (err) { } }
+      else if (m.t === 'disc') { clients.delete(m.conn); emit('net:disc', { conn: m.conn }); }
+    }));
+    s.on('timeout', () => { fin({ ok: false, error: 'brak połączenia z serwerem gry' }); s.destroy(); });
+    s.on('error', (err) => fin({ ok: false, error: err.code || String(err.message) }));
+    s.on('close', () => { fin({ ok: false, error: 'serwer zamknął połączenie' }); if (relay === s) { relay = null; for (const [id] of clients) if (id >= 1000) { clients.delete(id); emit('net:disc', { conn: id }); } emit('net:relayLost', {}); } });
+  });
+}
 function stopHost() {
+  if (relay) { try { relay.destroy(); } catch (e) { } relay = null; }
   if (bcastTimer) clearInterval(bcastTimer); bcastTimer = null;
   if (bcastSock) { try { bcastSock.close(); } catch (e) { } bcastSock = null; }
   for (const c of clients.values()) { try { c.destroy(); } catch (e) { } }
@@ -223,7 +252,7 @@ ipcMain.handle('net:host', async (e, info) => {
             for (const a of broadcastAddrs()) { try { bcastSock.send(msg, DISC_PORT, a); } catch (err) { } }
           };
           send(); bcastTimer = setInterval(send, 1500);
-          resolve({ ok: true, port: hostPort });
+          startRelay().then((r) => resolve({ ok: true, port: hostPort, code: r.ok ? r.code : null, relayError: r.ok ? null : r.error }));
         });
         bcastSock.on('error', () => { });
       });
@@ -244,6 +273,27 @@ ipcMain.handle('net:join', (e, ip, port) => {
     s.on('timeout', () => { if (!done) { done = true; resolve({ ok: false, error: 'Przekroczono czas oczekiwania' }); } s.destroy(); });
     s.on('error', (err) => { if (!done) { done = true; resolve({ ok: false, error: err.code || String(err.message) }); } });
     s.on('close', () => { if (sock === s) sock = null; emit('net:closed', {}); });
+  });
+});
+ipcMain.handle('net:joinCode', (e, code) => { // dołączenie przez Internet po kodzie gry
+  leave();
+  return new Promise((resolve) => {
+    let done = false, ready = false;
+    const fin = (r) => { if (!done) { done = true; resolve(r); } };
+    const s = net.connect({ host: RELAY_HOST, port: RELAY_PORT, timeout: 8000 });
+    sock = s; s.setNoDelay(true);
+    s.on('connect', () => { s.setTimeout(0); s.setKeepAlive(true, 20000); s.write(JSON.stringify({ op: 'join', g: GAME_ID, code: String(code || '').slice(0, 20) }) + '\n'); });
+    s.on('data', lineReader((l) => {
+      if (!ready) {
+        let m; try { m = JSON.parse(l); } catch (err) { return; }
+        if (m.t === 'ok') { ready = true; fin({ ok: true }); } else { fin({ ok: false, error: m.msg || 'błąd serwera' }); s.destroy(); }
+        return;
+      }
+      try { emit('net:msg', { from: 0, msg: JSON.parse(l) }); } catch (err) { }
+    }));
+    s.on('timeout', () => { fin({ ok: false, error: 'Nie można połączyć się z serwerem gry (sprawdź internet)' }); s.destroy(); });
+    s.on('error', (err) => fin({ ok: false, error: 'Nie można połączyć się z serwerem gry (' + (err.code || err.message) + ')' }));
+    s.on('close', () => { fin({ ok: false, error: 'Serwer zamknął połączenie' }); if (sock === s) sock = null; emit('net:closed', {}); });
   });
 });
 ipcMain.on('net:send', (e, msg, to, except) => {

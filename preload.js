@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const listeners = {};
-for (const ch of ['net:msg', 'net:conn', 'net:disc', 'net:closed', 'net:found', 'app:closing', 'update:progress']) {
+for (const ch of ['net:msg', 'net:conn', 'net:disc', 'net:closed', 'net:relayLost', 'net:found', 'app:closing', 'update:progress']) {
   ipcRenderer.on(ch, (e, data) => { (listeners[ch] || []).forEach((cb) => cb(data)); });
 }
 contextBridge.exposeInMainWorld('api', {
@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('api', {
   host: (info) => ipcRenderer.invoke('net:host', info),
   setInfo: (info) => ipcRenderer.send('net:setInfo', info),
   join: (ip, port) => ipcRenderer.invoke('net:join', ip, port),
+  joinCode: (code) => ipcRenderer.invoke('net:joinCode', code),
   send: (msg, to, except) => ipcRenderer.send('net:send', msg, to, except),
   leave: () => ipcRenderer.send('net:leave'),
   scan: () => ipcRenderer.invoke('net:scan'),

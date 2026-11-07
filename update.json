@@ -1,19 +1,19 @@
 {
   "product": "klocki-i-las",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "date": "2026-11-07",
   "electron": "45",
-  "notes": "- Instalacja: przy pierwszym uruchomieniu po aktualizacji gra pyta, gdzie ma być zainstalowana (domyślnie w obecnym folderze – wystarczy kliknąć „OK”; „Zmień folder…” kopiuje grę w wybrane miejsce). Na pulpicie pojawia się skrót.\n- Nowy instalator: wybór folderu instalacji, skrót na pulpicie i w menu Start.\n- Gra sieciowa: u góry ekranu pasek graczy (kolorowe znaczniki z nickiem i odległością w metrach), każdy gracz ma inny kolor, nick nad głową w kolorze gracza.\n- Łóżko: E na łóżku = sen. Spać można tylko w nocy i bez stworów w pobliżu; w grze sieciowej poranek przychodzi, gdy śpią wszyscy gracze.\n- Zadania z GitHuba: nowe zadania pobierają się same przy każdym uruchomieniu (podpisane cyfrowo, zapamiętywane na dysku, działają też bez internetu).\n- Przycisk „Skopiuj link do pobrania gry” (dla znajomych) w menu gry.",
+  "notes": "- Gra przez Internet: gospodarz („Stwórz grę sieciową”) widzi w rogu ekranu **kod gry** (np. ABC-DEF), koledzy wybierają „Dołącz do gry sieciowej” i wpisują kod. Działa z każdego domu, bez ustawień routera. Gra w jednej sieci Wi-Fi działa jak dotąd (lista gier).",
   "files": [
     {
       "path": "main.js",
-      "sha256": "eb25d88db7fc04f41ea359ddf83c72a26f6641e6783f319396276b0e00337308",
-      "size": 27750
+      "sha256": "5abf6ef7943e2b1067116247980f3f94d951d5c58ca522b7fd3605fac2de8fcf",
+      "size": 31417
     },
     {
       "path": "preload.js",
-      "sha256": "d2ccacfce48fc325fa34ef35a1cda4087c7af476c542564a08688a02da6d2ccf",
-      "size": 1607
+      "sha256": "5466e40651917b78c64478e051b707d0afc5b1b2d793fed7429a8ad73d87040d",
+      "size": 1688
     },
     {
       "path": "update-verify.js",
@@ -22,18 +22,18 @@
     },
     {
       "path": "renderer/index.html",
-      "sha256": "375bb589a839137d971b6eb3087cc197381eb2b2900fc55e58a8bbe9df9992c1",
-      "size": 1371
+      "sha256": "975c9831c2dfd9f2dd0772e6d65ac1f082dad7b457139a07551bc9f94dcdb852",
+      "size": 1398
     },
     {
       "path": "renderer/style.css",
-      "sha256": "1cdc80c5e67c581ff09f2a97bafa7874d38c0dac6c2a8e7c39a15e78e8c160ff",
-      "size": 14708
+      "sha256": "9ba6c8a16c7517884c958a1464751836adb3fe81790b9e1218db887a3bbbfd3c",
+      "size": 14802
     },
     {
       "path": "renderer/bundle.js",
-      "sha256": "72980ebf264899c01d415ac5b4da64ab84ec9d62964bb082c545154a7117db9a",
-      "size": 885293
+      "sha256": "834dc13500f91047a020a365173492f8a99cb309d3bcbcba0135d89275546833",
+      "size": 887370
     }
   ]
 }

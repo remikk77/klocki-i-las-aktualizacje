@@ -136,3 +136,4 @@ table.help td:first-child { color: #ffe27a; font-weight: 700; white-space: nowra
 #sleep { position: fixed; inset: 0; z-index: 8; background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 34px; font-weight: 700; opacity: 0; pointer-events: none; transition: opacity 1.2s; text-align: center; gap: 10px; }
 #sleep small { font-size: 16px; font-weight: 400; opacity: .7; }
 #sleep.on { opacity: 1; }
+#gcode { font-size: 16px !important; color: #9fd0ff; font-weight: 700; letter-spacing: 1px; }

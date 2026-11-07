@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('api', {
   updateCheck: () => ipcRenderer.invoke('update:check'),
   updateApply: () => ipcRenderer.invoke('update:apply'),
   loadTasks: () => ipcRenderer.invoke('tasks:load'),
+  syncTasks: () => ipcRenderer.invoke('tasks:sync'),
+  copyText: (s) => ipcRenderer.send('sys:copy', String(s)),
   openTasksDir: () => ipcRenderer.send('tasks:openDir'),
   info: () => ipcRenderer.invoke('sys:info'),
   quit: () => ipcRenderer.send('sys:quit'),

@@ -25,4 +25,17 @@ function verifyManifest(manifestBuf, sigB64, keyDerB64) {
   return m;
 }
 
-module.exports = { verifyManifest, ALLOWED, PUBLIC_KEY_DER_B64 };
+// Paczka zadań (zadania.json + zadania.json.sig) – podpisana tym samym kluczem co aktualizacje. To same dane (tekst), nie kod,
+// ale podpis chroni przed podrzuceniem własnych „zadań” przez kogoś, kto przejąłby konto GitHub.
+function verifyTasks(buf, sigB64, keyDerB64) {
+  let ok = false;
+  try { ok = crypto.verify(null, buf, publicKey(keyDerB64), Buffer.from(String(sigB64).trim(), 'base64')); } catch (e) { ok = false; }
+  if (!ok) throw new Error('podpis zadań jest nieprawidłowy – zadania odrzucone');
+  if (buf.length > 3e6) throw new Error('paczka zadań jest za duża');
+  const m = JSON.parse(buf.toString('utf8'));
+  if (m.product !== PRODUCT || m.kind !== 'zadania') throw new Error('to nie jest paczka zadań tej gry');
+  if (!Array.isArray(m.tasks)) throw new Error('brak listy zadań');
+  return m;
+}
+
+module.exports = { verifyManifest, verifyTasks, ALLOWED, PUBLIC_KEY_DER_B64 };

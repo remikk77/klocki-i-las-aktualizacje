@@ -5,6 +5,7 @@ const fs = require('fs');
 const net = require('net');
 const dgram = require('dgram');
 const os = require('os');
+const cp = require('child_process');
 
 const DISC_PORT = 41234, GAME_PORT = 41235, GAME_ID = 'KlockiLas1';
 let win = null;
@@ -94,8 +95,27 @@ function ensureTasksDir() {
   } catch (err) { /* brak praw zapisu – trudno */ }
   return d;
 }
+// zadania z GitHuba: podpisana paczka zadania.json w repozytorium aktualizacji; zapamiętywana na dysku, żeby działała bez internetu
+const onlineTasksFile = () => path.join(path.dirname(SAVE_DIR), 'zadania-online.json');
+function readOnlineCache() {
+  try {
+    const f = onlineTasksFile(), m = verifyTasks(fs.readFileSync(f), fs.readFileSync(f + '.sig', 'utf8'));
+    return { rev: String(m.rev || ''), tasks: m.tasks };
+  } catch (e) { return null; }
+}
+ipcMain.handle('tasks:sync', async () => { // pobierz najnowsze zadania z GitHuba (po cichu; błąd = zostają zapamiętane)
+  try {
+    const t = '?t=' + Date.now(), buf = await fetchBuf(RAW + 'zadania.json' + t, 8000), sig = await fetchBuf(RAW + 'zadania.json.sig' + t, 8000);
+    const m = verifyTasks(buf, sig.toString('utf8')), old = readOnlineCache();
+    const changed = !old || old.rev !== String(m.rev || '');
+    if (changed) { const f = onlineTasksFile(); fs.writeFileSync(f + '.tmp', buf); fs.writeFileSync(f + '.sig', sig); fs.renameSync(f + '.tmp', f); }
+    return { ok: true, changed, count: m.tasks.length };
+  } catch (e) { return { ok: false, error: String(e.message || e) }; }
+});
 ipcMain.handle('tasks:load', () => {
   const d = ensureTasksDir(), files = [], tasks = [];
+  const on = readOnlineCache();
+  if (on) { files.push({ name: 'z GitHuba (automatycznie)', count: on.tasks.length }); tasks.push(...on.tasks); }
   try {
     for (const f of fs.readdirSync(d).filter((x) => x.toLowerCase().endsWith('.json'))) {
       try {
@@ -138,6 +158,7 @@ ipcMain.handle('sys:info', () => {
   for (const list of Object.values(os.networkInterfaces())) for (const i of list || []) if (i.family === 'IPv4' && !i.internal) ips.push(i.address);
   return { ips, test: process.env.GRA_TEST || null, host: os.hostname() };
 });
+ipcMain.on('sys:copy', (e, s) => { require('electron').clipboard.writeText(String(s).slice(0, 500)); });
 ipcMain.on('sys:quit', () => { closing = true; app.quit(); });
 
 // ---------- sieć ----------
@@ -255,7 +276,7 @@ const crypto = require('crypto');
 // Pliki aktualizacji leżą w osobnym, publicznym repozytorium (kod źródłowy jest w prywatnym). Sam podpis chroni przed podmianą.
 const REPO = 'remikk77/klocki-i-las-aktualizacje', BRANCH = 'main';
 const RAW = (process.env.GRA_UPDATE_URL && process.env.GRA_UPDATE_DIR) ? process.env.GRA_UPDATE_URL : `https://raw.githubusercontent.com/${REPO}/${BRANCH}/`; // adres testowy działa tylko razem z GRA_UPDATE_DIR
-const { verifyManifest } = require('./update-verify.js');
+const { verifyManifest, verifyTasks } = require('./update-verify.js');
 function cmpVer(a, b) { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for (let i = 0; i < 3; i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; } return 0; }
 function selfUpdateInfo() { // czy ta kopia gry może sama się podmienić?
   if (process.env.GRA_UPDATE_DIR) return { ok: true, dir: process.env.GRA_UPDATE_DIR }; // tylko do testów
@@ -322,6 +343,77 @@ ipcMain.handle('update:apply', async () => {
   }
 });
 
+// ---------- miejsce instalacji ----------
+// Przy pierwszym uruchomieniu (np. zaraz po aktualizacji ze starej wersji) gra pyta, gdzie ma być zainstalowana.
+// Domyślnie: folder, w którym już jest. „OK” zostawia ją tam; „Zmień folder…” kopiuje całą grę we wskazane miejsce i uruchamia stamtąd.
+// Zawsze powstaje skrót na pulpicie. Wybór zapamiętuje plik %APPDATA%\KlockiLas\install-dir.txt (instalator też go zapisuje).
+const { dialog } = require('electron');
+const installMarker = () => process.env.GRA_INSTALL_MARKER || path.join(app.getPath('appData'), 'KlockiLas', 'install-dir.txt'); // zmienna tylko do testów
+function readInstallMarker() { try { return fs.readFileSync(installMarker(), 'utf8').trim() || null; } catch (e) { return null; } }
+function writeInstallMarker(dir) { try { fs.mkdirSync(path.dirname(installMarker()), { recursive: true }); fs.writeFileSync(installMarker(), dir); } catch (e) { /* trudno */ } }
+const desktopDir = () => process.env.GRA_DESKTOP_DIR || app.getPath('desktop'); // zmienna tylko do testów
+function makeDesktopShortcut(exe) {
+  try {
+    shell.writeShortcutLink(path.join(desktopDir(), 'Klocki i Las.lnk'), 'create', { target: exe, cwd: path.dirname(exe), description: 'Klocki i Las – 99 nocy', icon: exe, iconIndex: 0 });
+    return true;
+  } catch (e) { return false; }
+}
+function isSameDir(a, b) { return path.resolve(a).toLowerCase() === path.resolve(b).toLowerCase(); }
+function resolveTarget(chosen) { // wybrany folder niepusty i bez gry w środku → zrób w nim podfolder „Klocki i Las”
+  try {
+    if (!fs.existsSync(chosen)) return chosen;
+    const list = fs.readdirSync(chosen);
+    if (!list.length || list.some((f) => f.toLowerCase() === 'klockilas.exe')) return chosen;
+    return path.join(chosen, 'Klocki i Las');
+  } catch (e) { return chosen; }
+}
+async function ensureInstallLocation() { // zwraca true, gdy uruchomiono kopię w nowym miejscu (ta instancja ma się zamknąć)
+  const exe = process.execPath, cur = path.dirname(exe), base = path.basename(exe).toLowerCase();
+  if (base === 'electron.exe' || base === 'electron') return false; // folder programisty
+  if (!process.env.GRA_INSTALL_DIR && (process.env.GRA_SCRIPT || process.env.GRA_TEST || process.env.GRA_UPDATE_DIR)) return false; // testy automatyczne
+  const known = readInstallMarker();
+  if (known) { // jest już zapisany wybór; jeśli to ta kopia – upewnij się, że skrót istnieje
+    if (isSameDir(known, cur) && !fs.existsSync(path.join(desktopDir(), 'Klocki i Las.lnk'))) makeDesktopShortcut(exe);
+    return false;
+  }
+  let dest = cur;
+  const forced = process.env.GRA_INSTALL_DIR; // tylko do testów (bez okien)
+  if (forced) dest = resolveTarget(forced);
+  else {
+    for (;;) {
+      const r = dialog.showMessageBoxSync({
+        type: 'question', title: 'Klocki i Las – miejsce instalacji', message: 'Gdzie zainstalować grę?', defaultId: 0, cancelId: 0, noLink: true,
+        detail: `Proponowany folder:\n${dest}\n\nKliknij „OK”, aby zainstalować tutaj (w tym folderze gra już jest), albo „Zmień folder…”, aby wybrać inne miejsce.\nPostępy graczy zostają – nie leżą w folderze gry. Na pulpicie pojawi się skrót.`,
+        buttons: ['OK', 'Zmień folder…'],
+      });
+      if (r === 0) break;
+      const pick = dialog.showOpenDialogSync({ title: 'Wybierz folder dla gry', defaultPath: path.dirname(dest), properties: ['openDirectory', 'createDirectory'] });
+      if (pick && pick[0]) dest = resolveTarget(pick[0]);
+    }
+  }
+  if (isSameDir(dest, cur)) { writeInstallMarker(cur); makeDesktopShortcut(exe); return false; }
+  // kopiowanie całej gry (Electron + pliki) do nowego folderu
+  if (path.resolve(dest).toLowerCase().startsWith(path.resolve(cur).toLowerCase() + path.sep)) { dialog.showErrorBox('Klocki i Las', 'Nie można instalować w podfolderze folderu, w którym gra już jest.'); return false; }
+  const wait = new BrowserWindow({ width: 460, height: 170, frame: false, resizable: false, alwaysOnTop: true, backgroundColor: '#10151c', webPreferences: { sandbox: true } });
+  wait.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent('<body style="margin:0;background:#10151c;color:#fff;font:20px Segoe UI,Arial;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center">Instaluję grę…<br>chwilę to potrwa ⏳</body>'));
+  try {
+    fs.mkdirSync(dest, { recursive: true });
+    await fs.promises.cp(cur, dest, { recursive: true, force: true, filter: (s) => !/[\\/](update-staging|update-backup)([\\/]|$)/.test(s) });
+    const newExe = path.join(dest, path.basename(exe));
+    if (!fs.existsSync(newExe)) throw new Error('po kopiowaniu brakuje pliku ' + newExe);
+    writeInstallMarker(dest); makeDesktopShortcut(newExe);
+    wait.destroy();
+    if (!forced) dialog.showMessageBoxSync({ type: 'info', title: 'Klocki i Las', message: 'Gra zainstalowana!', detail: `Nowe miejsce:\n${dest}\n\nNa pulpicie jest skrót „Klocki i Las”. Gra uruchomi się teraz z nowego miejsca.\nStary folder (${cur}) możesz usunąć – zapisy graczy zostają.`, buttons: ['OK'] });
+    const child = cp.spawn(newExe, [], { detached: true, stdio: 'ignore', cwd: dest }); child.unref();
+    return true;
+  } catch (e) {
+    try { wait.destroy(); } catch (e2) { /* nieważne */ }
+    if (!forced) dialog.showErrorBox('Klocki i Las', 'Nie udało się zainstalować w nowym miejscu:\n' + (e.message || e) + '\n\nGra uruchomi się z obecnego folderu.');
+    else console.log('INSTALL ERROR', e.message || e);
+    return false;
+  }
+}
+
 // ---------- okno ----------
 function createWindow() {
   win = new BrowserWindow({
@@ -365,8 +457,11 @@ function createWindow() {
 }
 ipcMain.on('app:closeReady', () => { closing = true; app.quit(); });
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   SAVE_DIR = saveDir();
+  let moved = false;
+  try { moved = await ensureInstallLocation(); } catch (e) { console.log('install error', e.message); }
+  if (moved) { closing = true; app.exit(0); return; }
   createWindow();
 });
 app.on('window-all-closed', () => { leave(); app.quit(); });

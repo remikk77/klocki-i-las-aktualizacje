@@ -1,9 +1,9 @@
 {
   "product": "klocki-i-las",
-  "version": "4.4.0",
+  "version": "5.0.0",
   "date": "2026-11-07",
   "electron": "45",
-  "notes": "- Zapisy w chmurze: gracz z hasłem ma kopię zapasową postaci i świata na serwerze (Mikrus). Zapis jest szyfrowany na komputerze gracza jego hasłem – serwer nie zna ani hasła, ani treści. Po instalacji na nowym komputerze wystarczy w menu kliknąć „Pobierz mojego gracza z serwera” i wpisać imię oraz hasło. Komunikacja tylko przez HTTPS, blokada po błędnych próbach, 3 ostatnie wersje zapisu.\n- Nowy gracz musi wybrać klasę (obowiązkowo).\n- Krótkie zadania z matematyki podczas kopania i budowania (można wyłączyć w Ustawieniach).",
+  "notes": "- Gra bardziej jak Minecraft – etap 2 (świat). Nowe światy używają generatora terenu nr 4; stare światy zostają bez zmian.\n  - Jaskinie: tunele i duże groty pod ziemią, a na samym dole lawa (jasnopomarańczowe bloki – parzy, można ją zasłonić blokiem).\n  - Rudy według głębokości: węgiel, żelazo (kamienny kilof), złoto i diamenty (głęboko). Z żelaza: miecz, siekiera i pancerz (−30% obrażeń, wystarczy mieć w plecaku). Kowal kupuje rudy.\n  - Nowe krainy: tajga (świerki, śnieg na ziemi), dżungla (wysokie drzewa, gęsta trawa), kaktusy na pustyni (kłują).\n  - Nowe stwory: szkielet (strzela z łuku, trzyma dystans) i pająk (szybki, gryzie). Pojawiają się w ciemnych jaskiniach (także w dzień) oraz nocą na powierzchni.\n  - Nowe tekstury bloków (rudy, lawa, kaktus, świerk, dżungla) i ikony przedmiotów.\n- Zadania z internetu bez numeru klasy trafiają teraz tylko do pasujących klas (ułamki od 4., procenty od 5., równania od 6., pierwiastki i potęgi od 7. itd.), a nie do wszystkich.",
   "files": [
     {
       "path": "main.js",
@@ -32,8 +32,8 @@
     },
     {
       "path": "renderer/bundle.js",
-      "sha256": "700dca7029f90a3aac095a6e5436a190e5379c7fd4ce42b3ad272319f0e3feb4",
-      "size": 919621
+      "sha256": "85ea1b7a990d59e34c8fecd0219c06349d03db0fdbe93641c7cfbcf068dbf84b",
+      "size": 935380
     }
   ]
 }

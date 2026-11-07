@@ -1,19 +1,19 @@
 {
   "product": "klocki-i-las",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "date": "2026-11-07",
   "electron": "45",
-  "notes": "- Gra bardziej jak Minecraft – etap 1 (przetrwanie i wrażenia):\n  - Serca (10) i głód (10 udek) nad paskiem przedmiotów; głód rośnie od biegania, najedzony gracz odzyskuje serca, głodny nie.\n  - Obrażenia od zombie, creepera, upadku z wysokości (powyżej 3 bloków), tonięcia (po 20 s bez powietrza) i głodu; po śmierci odrodzenie przy łóżku (klik E na łóżku ustawia punkt odrodzenia).\n  - Zwierzęta: świnie, krowy i owce chodzą po łąkach, po uderzeniu uciekają, dają mięso.\n  - Jedzenie: surowe i pieczone mięso, chleb, jabłko – PPM z jedzeniem w ręku.\n  - Narzędzia w ręku: kamienny miecz i siekiera (z wytrzymałością); do wytworzenia przy stole.\n  - Ręka z trzymanym przedmiotem w pierwszej osobie, machnięcie przy kopaniu, odłamki bloków, odgłosy kroków zależne od podłoża, czerwony błysk przy trafieniu.",
+  "notes": "- Zapisy w chmurze: gracz z hasłem ma kopię zapasową postaci i świata na serwerze (Mikrus). Zapis jest szyfrowany na komputerze gracza jego hasłem – serwer nie zna ani hasła, ani treści. Po instalacji na nowym komputerze wystarczy w menu kliknąć „Pobierz mojego gracza z serwera” i wpisać imię oraz hasło. Komunikacja tylko przez HTTPS, blokada po błędnych próbach, 3 ostatnie wersje zapisu.\n- Nowy gracz musi wybrać klasę (obowiązkowo).\n- Krótkie zadania z matematyki podczas kopania i budowania (można wyłączyć w Ustawieniach).",
   "files": [
     {
       "path": "main.js",
-      "sha256": "0951c11548c418196e86e6c089a2a013e54b2999725e532f4a7efbf1afb033c0",
-      "size": 32061
+      "sha256": "4cc39dd84f16ac7ed663764c16644e997ee5e1775a2951de864f124bd013eec1",
+      "size": 38484
     },
     {
       "path": "preload.js",
-      "sha256": "eb3236409a4d22b23bc45ee6513af67271efef75ab75b3b7fd247f5a0fed5a96",
-      "size": 1808
+      "sha256": "136b06da1468e5ddbc5fb302ec153a885ca8b5fdcae0b65334cf2813f40147b1",
+      "size": 2279
     },
     {
       "path": "update-verify.js",
@@ -32,8 +32,8 @@
     },
     {
       "path": "renderer/bundle.js",
-      "sha256": "0d0fc28ac9de3420a1bbeed7257e253f559d7aca8c0041b46aa755c214819117",
-      "size": 911844
+      "sha256": "700dca7029f90a3aac095a6e5436a190e5379c7fd4ce42b3ad272319f0e3feb4",
+      "size": 919621
     }
   ]
 }

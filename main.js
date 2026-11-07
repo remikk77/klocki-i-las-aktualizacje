@@ -159,6 +159,91 @@ ipcMain.handle('sys:info', () => {
   return { ips, test: process.env.GRA_TEST || null, host: os.hostname() };
 });
 ipcMain.on('sys:copy', (e, s) => { require('electron').clipboard.writeText(String(s).slice(0, 500)); });
+// <cloud-client>
+// Klient zapisów w chmurze: szyfrowanie po stronie gry i rozmowa z serwerem zapisów (server/saves.js na Mikrusie).
+// Z hasła gracza (scrypt, 64 bajty) powstają DWA niezależne klucze: „auth” (dowód tożsamości dla serwera) i „enc” (szyfrowanie zapisu, nigdy nie opuszcza gry).
+// Serwer widzi tylko auth i szyfrogram – nie zna hasła i nie przeczyta zapisów. Łączymy się wyłącznie przez HTTPS.
+const cloud = (() => {
+const crypto = require('crypto');
+
+
+function deriveKeys(name, password) {
+  const salt = Buffer.from('klocki-i-las-v1|' + String(name).trim().toLowerCase(), 'utf8');
+  const k = crypto.scryptSync(String(password).normalize('NFKC'), salt, 64, { N: 32768, r: 8, p: 1, maxmem: 128 * 1024 * 1024 });
+  return { auth: k.subarray(0, 32).toString('base64'), enc: Buffer.from(k.subarray(32, 64)) };
+}
+const aad = (name, kind) => Buffer.from('klocki|' + String(name).trim().toLowerCase() + '|' + kind, 'utf8'); // wiąże szyfrogram z graczem i rodzajem zapisu
+function encrypt(keys, name, kind, text) {
+  const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', keys.enc, iv);
+  c.setAAD(aad(name, kind));
+  const ct = Buffer.concat([c.update(Buffer.from(text, 'utf8')), c.final(), c.getAuthTag()]);
+  return { iv: iv.toString('base64'), ct: ct.toString('base64') };
+}
+function decrypt(keys, name, kind, iv, ct) {
+  const buf = Buffer.from(ct, 'base64'), d = crypto.createDecipheriv('aes-256-gcm', keys.enc, Buffer.from(iv, 'base64'));
+  d.setAAD(aad(name, kind)); d.setAuthTag(buf.subarray(buf.length - 16));
+  return Buffer.concat([d.update(buf.subarray(0, buf.length - 16)), d.final()]).toString('utf8');
+}
+
+class CloudError extends Error { constructor(code, msg, extra) { super(msg); this.code = code; Object.assign(this, extra || {}); } }
+const CODES = { 401: 'auth', 404: 'none', 409: 'conflict', 413: 'full', 429: 'locked', 507: 'full' };
+
+async function call(base, method, path, auth, body, opts = {}) {
+  const u = new URL(base);
+  if (u.protocol !== 'https:' && !opts.insecure) throw new CloudError('insecure', 'połączenie z serwerem zapisów musi być szyfrowane (https)');
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), opts.timeout || 25000);
+  let r;
+  try {
+    r = await fetch(base.replace(/\/$/, '') + path, { method, signal: ac.signal, headers: { 'X-Auth': auth, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  } catch (e) { throw new CloudError('nonet', 'brak połączenia z serwerem zapisów'); } finally { clearTimeout(t); }
+  let j = {}; try { j = await r.json(); } catch (e) { /* pusta odpowiedź */ }
+  if (!r.ok) throw new CloudError(CODES[r.status] || 'server', j.error || ('błąd serwera ' + r.status), { rev: j.rev });
+  return j;
+}
+const enc = encodeURIComponent;
+async function push(base, name, keys, kind, text, rev, opts) {
+  const { iv, ct } = encrypt(keys, name, kind, text);
+  return call(base, 'PUT', `/v1/blob/${enc(name)}/${kind}`, keys.auth, { rev, iv, ct }, opts);
+}
+async function pull(base, name, keys, kind, opts) { // zwraca { rev, text } albo rzuca CloudError('none' | 'auth' | ...)
+  const j = await call(base, 'GET', `/v1/blob/${enc(name)}/${kind}`, keys.auth, null, opts);
+  let text; try { text = decrypt(keys, name, kind, j.iv, j.ct); } catch (e) { throw new CloudError('corrupt', 'zapis na serwerze jest uszkodzony albo zaszyfrowany innym hasłem'); }
+  return { rev: j.rev, text };
+}
+const meta = (base, name, keys, opts) => call(base, 'GET', `/v1/meta/${enc(name)}`, keys.auth, null, opts);
+const rekey = (base, name, oldKeys, newKeys, opts) => call(base, 'POST', `/v1/rekey/${enc(name)}`, oldKeys.auth, { newAuth: newKeys.auth }, opts);
+const removeAccount = (base, name, keys, opts) => call(base, 'DELETE', `/v1/account/${enc(name)}`, keys.auth, null, opts);
+return { deriveKeys, encrypt, decrypt, push, pull, meta, rekey, removeAccount, CloudError };
+})();
+// </cloud-client>
+
+const CLOUD_URL = process.env.GRA_CLOUD || 'https://klockisave.mikrus.dev', CLOUD_OPTS = process.env.GRA_CLOUD ? { insecure: true } : {}; // GRA_CLOUD tylko do testów (adres http)
+const cloudSessions = new Map(); // imię (małymi literami) -> klucze; tylko w pamięci, nigdy na dysku
+const cname = (n) => String(n || '').trim().toLowerCase();
+const cres = (e) => ({ ok: false, code: e.code || 'server', error: String(e.message || e), rev: e.rev });
+ipcMain.handle('cloud:login', (e, name, pw) => { try { cloudSessions.set(cname(name), cloud.deriveKeys(name, pw)); return { ok: true }; } catch (err) { return cres(err); } });
+ipcMain.on('cloud:logout', (e, name) => { cloudSessions.delete(cname(name)); });
+ipcMain.handle('cloud:push', async (e, name, kind, text, rev) => {
+  const k = cloudSessions.get(cname(name)); if (!k) return { ok: false, code: 'nosession' };
+  if (typeof text !== 'string' || text.length > 12e6) return { ok: false, code: 'full' };
+  try { await cloud.push(CLOUD_URL, name, k, kind, text, rev, CLOUD_OPTS); return { ok: true }; } catch (err) { return cres(err); }
+});
+ipcMain.handle('cloud:pull', async (e, name, kind) => {
+  const k = cloudSessions.get(cname(name)); if (!k) return { ok: false, code: 'nosession' };
+  try { const r = await cloud.pull(CLOUD_URL, name, k, kind, CLOUD_OPTS); return { ok: true, rev: r.rev, text: r.text }; } catch (err) { return cres(err); }
+});
+ipcMain.handle('cloud:meta', async (e, name) => {
+  const k = cloudSessions.get(cname(name)); if (!k) return { ok: false, code: 'nosession' };
+  try { return { ok: true, meta: await cloud.meta(CLOUD_URL, name, k, CLOUD_OPTS) }; } catch (err) { return cres(err); }
+});
+ipcMain.handle('cloud:rekey', async (e, name, newPw) => { // zmiana hasła: nowy klucz na serwerze (stare zapisy znikają – gra wyśle je ponownie)
+  const old = cloudSessions.get(cname(name)), nk = cloud.deriveKeys(name, newPw);
+  try { if (old) await cloud.rekey(CLOUD_URL, name, old, nk, CLOUD_OPTS); cloudSessions.set(cname(name), nk); return { ok: true, hadAccount: !!old }; } catch (err) { if (err.code === 'none') { cloudSessions.set(cname(name), nk); return { ok: true }; } return cres(err); }
+});
+ipcMain.handle('cloud:remove', async (e, name) => {
+  const k = cloudSessions.get(cname(name)); if (!k) return { ok: false, code: 'nosession' };
+  try { await cloud.removeAccount(CLOUD_URL, name, k, CLOUD_OPTS); return { ok: true }; } catch (err) { return cres(err); }
+});
 // hasła graczy: w profilu zapisujemy tylko sól i skrót (scrypt) – samego hasła nie da się odczytać
 ipcMain.handle('pw:hash', (e, pw) => {
   const salt = crypto.randomBytes(16), hash = crypto.scryptSync(String(pw).slice(0, 100), salt, 32, { N: 16384, r: 8, p: 1 });
@@ -489,7 +574,7 @@ function createWindow() {
     e.preventDefault();
     closing = true;
     emit('app:closing', {});
-    setTimeout(() => { app.quit(); }, 2500);
+    setTimeout(() => { app.quit(); }, 7500);
   });
   win.webContents.on('console-message', (e, level, message) => { if (process.env.GRA_TEST) console.log('[renderer]', message); });
   if (process.env.GRA_SCRIPT) { // tylko do testów automatycznych: uruchom skrypt w oknie gry, gdy gra jest gotowa

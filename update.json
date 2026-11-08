@@ -1,9 +1,9 @@
 {
   "product": "klocki-i-las",
-  "version": "5.0.0",
-  "date": "2026-11-07",
+  "version": "5.1.0",
+  "date": "2026-11-08",
   "electron": "45",
-  "notes": "- Gra bardziej jak Minecraft – etap 2 (świat). Nowe światy używają generatora terenu nr 4; stare światy zostają bez zmian.\n  - Jaskinie: tunele i duże groty pod ziemią, a na samym dole lawa (jasnopomarańczowe bloki – parzy, można ją zasłonić blokiem).\n  - Rudy według głębokości: węgiel, żelazo (kamienny kilof), złoto i diamenty (głęboko). Z żelaza: miecz, siekiera i pancerz (−30% obrażeń, wystarczy mieć w plecaku). Kowal kupuje rudy.\n  - Nowe krainy: tajga (świerki, śnieg na ziemi), dżungla (wysokie drzewa, gęsta trawa), kaktusy na pustyni (kłują).\n  - Nowe stwory: szkielet (strzela z łuku, trzyma dystans) i pająk (szybki, gryzie). Pojawiają się w ciemnych jaskiniach (także w dzień) oraz nocą na powierzchni.\n  - Nowe tekstury bloków (rudy, lawa, kaktus, świerk, dżungla) i ikony przedmiotów.\n- Zadania z internetu bez numeru klasy trafiają teraz tylko do pasujących klas (ułamki od 4., procenty od 5., równania od 6., pierwiastki i potęgi od 7. itd.), a nie do wszystkich.",
+  "notes": "- Zadania z matematyki pojawiają się tylko za **wytwarzanie** (craftowanie) i za **skrzynie** (klik E). Usunięte: losowe krótkie zadania i zadania podczas kopania i budowania (znikł też przełącznik w Ustawieniach). Tablica zadań i rozmowa z mieszkańcem wioski działają jak dotąd, bo wybierasz je sam.\n- Wioski: nowy generator terenu nr 5 – wioski są częstsze (w 6 na 10 pól mapy), z domami, meblami, polami i skrzyniami. Stary świat dostaje przy pierwszym wejściu nowy teren (wioski, jaskinie, rudy); budowle zostają, a stary zapis jest kopią zapasową (`swiat_<imię>_kopia_gen…`). W grze sieciowej świat gospodarza ulepsza się przy jego starcie.\n- Kopalnia: rudy są teraz w małych żyłach i jest ich dużo więcej – węgiel, żelazo, złoto i diamenty (także w starych światach po ulepszeniu).\n- Diamentowe jabłko: blok diamentu + 3 jabłka (siatka 2×2). Po zjedzeniu (PPM) dostajesz 3 dodatkowe złote serca, które przyjmują obrażenia jako pierwsze.\n- Żelazny pancerz w częściach: hełm, zbroja, spodnie i buty (z żelaza przy stole). Każda część w plecaku zmniejsza obrażenia (hełm 10%, zbroja 25%, spodnie 15%, buty 10% – razem 60%).\n- Można siadać na krzesłach i ławkach (E). Wstajesz klawiszami W A S D albo spacją.\n- Menu główne: nowy przycisk „Co nowego w kolejnych wersjach” (także w oknie aktualizacji) – lista wszystkich wersji gry z opisem zmian.",
   "files": [
     {
       "path": "main.js",
@@ -27,13 +27,13 @@
     },
     {
       "path": "renderer/style.css",
-      "sha256": "11d87b3f5015ac7df9542507454e5400341762d745a5dd850588600dbfd5f42d",
-      "size": 15657
+      "sha256": "7b9dc6527be7e5218cb1c85c70cce63ed6c598008ea4fb5bd3c5845a84b46048",
+      "size": 16106
     },
     {
       "path": "renderer/bundle.js",
-      "sha256": "85ea1b7a990d59e34c8fecd0219c06349d03db0fdbe93641c7cfbcf068dbf84b",
-      "size": 935380
+      "sha256": "9088744891229d6333828391f180695116da96d5e163dab26f3ee07703d8f1ae",
+      "size": 949091
     }
   ]
 }

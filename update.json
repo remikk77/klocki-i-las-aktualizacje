@@ -1,9 +1,9 @@
 {
   "product": "klocki-i-las",
-  "version": "5.1.0",
-  "date": "2026-11-08",
+  "version": "5.2.0",
+  "date": "2026-11-14",
   "electron": "45",
-  "notes": "- Zadania z matematyki pojawiają się tylko za **wytwarzanie** (craftowanie) i za **skrzynie** (klik E). Usunięte: losowe krótkie zadania i zadania podczas kopania i budowania (znikł też przełącznik w Ustawieniach). Tablica zadań i rozmowa z mieszkańcem wioski działają jak dotąd, bo wybierasz je sam.\n- Wioski: nowy generator terenu nr 5 – wioski są częstsze (w 6 na 10 pól mapy), z domami, meblami, polami i skrzyniami. Stary świat dostaje przy pierwszym wejściu nowy teren (wioski, jaskinie, rudy); budowle zostają, a stary zapis jest kopią zapasową (`swiat_<imię>_kopia_gen…`). W grze sieciowej świat gospodarza ulepsza się przy jego starcie.\n- Kopalnia: rudy są teraz w małych żyłach i jest ich dużo więcej – węgiel, żelazo, złoto i diamenty (także w starych światach po ulepszeniu).\n- Diamentowe jabłko: blok diamentu + 3 jabłka (siatka 2×2). Po zjedzeniu (PPM) dostajesz 3 dodatkowe złote serca, które przyjmują obrażenia jako pierwsze.\n- Żelazny pancerz w częściach: hełm, zbroja, spodnie i buty (z żelaza przy stole). Każda część w plecaku zmniejsza obrażenia (hełm 10%, zbroja 25%, spodnie 15%, buty 10% – razem 60%).\n- Można siadać na krzesłach i ławkach (E). Wstajesz klawiszami W A S D albo spacją.\n- Menu główne: nowy przycisk „Co nowego w kolejnych wersjach” (także w oknie aktualizacji) – lista wszystkich wersji gry z opisem zmian.",
+  "notes": "- **Kopalnie**: pod ziemią są teraz wielkie kopalnie – długie korytarze z drewnianymi podporami i latarniami, boczne odnogi, duża sala pośrodku i cztery sale na końcach ze skrzyniami. Ściany są pełne węgla, żelaza, złota i diamentów. Wejście to długi zjazd w dół, oznaczony **bramą z belek i latarnią** (szukaj jej na powierzchni, daleko od startu). Nowy generator terenu nr 6; stary świat dostaje kopalnie przy „Kontynuuj” (z kopią zapasową), a wszystko poza kopalniami zostaje bez zmian.\n- W kopalniach jest dużo węgla (najczęstsza ruda w ścianach), a do tego żelazo, złoto i diamenty.\n- Rudy (węgiel, żelazo, złoto, diament) **zawsze trafiają do plecaka**, nawet gdy jest pełny, i pokazuje się napis „+1 …”. Żelazo, złoto i diament wymagają kamiennego kilofa.\n- Nowe ulepszenia w sklepie, każde za **1000 zł**: kilof Mistrzowski (kopie najszybciej), latarka Słoneczna (widać najdalej), plecak Bez dna (1024 miejsc) i buty Rakietowe (najszybszy bieg).\n- **Tryb Hardcore** w menu (po wybraniu gracza): jedno życie. Gdy zginiesz, świat Hardcore zostaje skasowany i tracisz plecak (pieniądze i ulepszenia zostają). To osobna gra – zwykły świat jest bezpieczny. Na ekranie widać napis „HARDCORE”.",
   "files": [
     {
       "path": "main.js",
@@ -32,8 +32,8 @@
     },
     {
       "path": "renderer/bundle.js",
-      "sha256": "9088744891229d6333828391f180695116da96d5e163dab26f3ee07703d8f1ae",
-      "size": 949091
+      "sha256": "b93d618a464cca874910bcd4e3cbd9f97d62299aa9ceb5d2a7ebd36667fc9d79",
+      "size": 957227
     }
   ]
 }
